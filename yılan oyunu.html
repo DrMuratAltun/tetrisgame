@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Python Yılan Oyunu</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #000; }
+        canvas { border: 2px solid #fff; }
+    </style>
+</head>
+<body>
+<canvas id="gameCanvas" width="400" height="400"></canvas>
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+let snake = [{x: 200, y: 200}];
+let direction = {x: 0, y: 0};
+let food = {x: Math.floor(Math.random() * 20) * 20, y: Math.floor(Math.random() * 20) * 20};
+let score = 0;
+
+document.addEventListener('keydown', changeDirection);
+
+function gameLoop() {
+    let head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
+
+    if (head.x === food.x && head.y === food.y) {
+        score++;
+        food = {x: Math.floor(Math.random() * 20) * 20, y: Math.floor(Math.random() * 20) * 20};
+    } else {
+        snake.pop();
+    }
+
+    if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height || collision(head)) {
+        alert('Oyun Bitti! Skorunuz: ' + score);
+        document.location.reload();
+        return;
+    }
+
+    snake.unshift(head);
+    draw();
+    setTimeout(gameLoop, 100);
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = 'lime';
+    for (let part of snake) {
+        ctx.fillRect(part.x, part.y, 20, 20);
+    }
+
+    ctx.fillStyle = 'red';
+    ctx.fillRect(food.x, food.y, 20, 20);
+}
+
+function changeDirection(event) {
+    const keyPressed = event.keyCode;
+    const goingUp = direction.y === -20;
+    const goingDown = direction.y === 20;
+    const goingRight = direction.x === 20;
+    const goingLeft = direction.x === -20;
+
+    if (keyPressed === 37 && !goingRight) {
+        direction = {x: -20, y: 0};
+    }
+
+    if (keyPressed === 38 && !goingDown) {
+        direction = {x: 0, y: -20};
+    }
+
+    if (keyPressed === 39 && !goingLeft) {
+        direction = {x: 20, y: 0};
+    }
+
+    if (keyPressed === 40 && !goingUp) {
+        direction = {x: 0, y: 20};
+    }
+}
+
+function collision(head) {
+    for (let i = 1; i < snake.length; i++) {
+        if (head.x === snake[i].x && head.y === snake[i].y) return true;
+    }
+    return false;
+}
+
+gameLoop();
+</script>
+</body>
+</html>
